@@ -1,6 +1,6 @@
 const express = require('express')
 const cors = require('cors')
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express()
 const port = process.env.port || 3000
 require('dotenv').config()
@@ -14,6 +14,7 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@vdtwnfb
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
+    
     strict: true,
     deprecationErrors: true,
   }
@@ -23,22 +24,17 @@ async function run() {
    
     await client.connect();
 
+    //datbases
     const db = client.db('bill_management_system');
     const bills = db.collection('bills');
+    const myBills = db.collection('myBills');
 
-    bills.insertOne({
-    "title": "Monthly Electricity Bill for Sea View Apartment",
-    "category": "Electricity",
-    "email": "electric@seaview.com",
-    "location": "Palm Juhu, Dubai",
-    "description": "Electricity charges for the apartment unit for the month.",
-    "image": "https://plus.unsplash.com/premium_photo-1716824502431-b93e3756a6aa?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=2340",
-    "date": "2025-11-03",
-    "amount": 120
-  })
+
+
+
 
     //back-end API's
-    //load bills
+    //load bills based on either limit or category
     app.get('/bills',async (req, res) => {
         const limit = parseInt(req.query.limit);
         const category = req.query.category
@@ -56,8 +52,79 @@ async function run() {
         const result = await cursor.toArray();
         res.send(result)
 
-
      })
+
+     app.get('/bills/:id', async(req,res) => {
+
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = await bills.findOne(query)
+      res.send(result)
+     })
+
+     //backend API's for myBill collection
+ 
+
+//add bill
+    app.post('/mybills', async (req,res) => {
+    const paidBillInfo = req.body;
+    const result = await myBills.insertOne(paidBillInfo);
+    res.send(result);
+   })
+
+
+
+   //retrieve user bills based on email
+   app.get('/mybills', async (req, res)=>{
+
+    const user_email = req.query.email;
+    const query = {};
+
+    if(user_email){
+      query.email = user_email
+
+    }
+
+    const cursor = myBills.find(query)
+    const result = await cursor.toArray();
+    res.send(result)
+
+   })
+
+  app.patch('/mybills/:id', async (req, res) => {
+
+    const id = req.params.id;
+    const updatedBillInfo = req.body;
+    const query = {_id: new ObjectId(id)}
+
+    const update = {
+      $set: {
+        Phone:updatedBillInfo.Phone,
+        Address: updatedBillInfo.Address,
+        amount: updatedBillInfo.amount,
+        date: updatedBillInfo.date
+      }
+    }
+
+    const result = await myBills.updateOne (query, update);
+    res.send(result)
+    
+  })
+
+
+  app.delete('/mybills/:id', async(req,res) => {
+
+    const id = req.params.id;
+    const query = {_id: new ObjectId(id)}
+    const result = await myBills.deleteOne(query);
+    res.send(result)
+
+
+  })
+
+
+
+
 
 
 
