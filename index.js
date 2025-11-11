@@ -75,6 +75,28 @@ async function run() {
    })
 
 
+   //retrieve user bills based on email
+   app.get('/mybills', async (req, res)=>{
+
+    const user_email = req.query.email;
+    const query = {};
+
+    if(user_email){
+      query.email = user_email
+
+    }
+
+    const cursor = myBills.find(query)
+    const result = await cursor.toArray();
+    res.send(result)
+
+   })
+
+
+
+
+
+
 
 
 
