@@ -64,6 +64,17 @@ async function run() {
 
 
 
+     //backend API's for myBill collection
+ 
+
+//add bill
+    app.post('/mybills', async (req,res) => {
+    const paidBillInfo = req.body;
+    const result = await myBills.insertOne(paidBillInfo);
+    res.send(result);
+   })
+
+
 
 
 
