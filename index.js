@@ -100,8 +100,8 @@ async function run() {
 
     const update = {
       $set: {
-        Phone:updatedBillInfo.Phone,
-        Address: updatedBillInfo.Address,
+        phone:updatedBillInfo.phone,
+        address: updatedBillInfo.address,
         amount: updatedBillInfo.amount,
         date: updatedBillInfo.date
       }
@@ -121,11 +121,6 @@ async function run() {
 
 
   })
-
-
-
-
-
 
 
 
